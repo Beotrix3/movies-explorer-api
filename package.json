@@ -1,0 +1,42 @@
+{
+  "name": "movies-explorer-api",
+  "version": "1.0.0",
+  "description": "movies-backend",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "lint": "eslint --fix ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Beotrix3/movies-explorer-api.git"
+  },
+  "author": "Alexey Grebnev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Beotrix3/movies-explorer-api/issues"
+  },
+  "homepage": "https://github.com/Beotrix3/movies-explorer-api#readme",
+  "devDependencies": {
+    "eslint": "^8.5.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.3",
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.1",
+    "celebrate": "^15.0.0",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.2",
+    "express-rate-limit": "^5.5.1",
+    "express-winston": "^4.2.0",
+    "helmet": "^4.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.1.4",
+    "validator": "^13.7.0",
+    "winston": "^3.3.3"
+  }
+}
