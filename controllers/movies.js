@@ -4,7 +4,8 @@ const Forbidden = require('../errors/Forbidden');
 const BadRequest = require('../errors/BadRequest');
 
 const getMovies = (req, res, next) => {
-  Movie.find({})
+  const owner = req.user._id;
+  Movie.find({ owner })
     .then((movies) => res.send({ movies }))
     .catch(next);
 };

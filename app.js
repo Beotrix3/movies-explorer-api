@@ -15,38 +15,24 @@ const NotFound = require('./errors/NotFound');
 
 const { PORT = 3000 } = process.env;
 
-const app = express();
-
 const ALLOWED_CORS = [
+  'https://movies-explorer.front.brx.nomoredomains.work',
   'https://api.movies-explorer.btrix.nomoredomains.rocks',
   'localhost:3000',
 ];
 
-app.use((req, res, next) => {
-  const { origin } = req.headers;
-  const { method } = req;
-  const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
-  const requestHeaders = req.headers['access-control-request-headers'];
-  if (ALLOWED_CORS.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-  }
-  if (method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', DEFAULT_ALLOWED_METHODS);
-    res.header('Access-Control-Allow-Headers', requestHeaders);
-
-    res.status(200).send();
-  }
-
-  next();
-});
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const app = express();
 
 app.use(helmet());
 
 app.use(cookieParser());
+
+app.use(express.json());
+
+mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 app.use(requestLogger);
 
@@ -57,6 +43,24 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
+
+app.use((req, res, next) => {
+  const { origin } = req.headers;
+  const { method } = req;
+  const requestHeaders = req.headers['access-control-request-headers'];
+  const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
+  if (ALLOWED_CORS.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+  if (method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', DEFAULT_ALLOWED_METHODS);
+    res.header('Access-Control-Allow-Headers', requestHeaders);
+
+    res.status(200).send();
+  }
+  next();
+});
 
 app.get('/crash-test', () => {
   setTimeout(() => {
@@ -74,11 +78,6 @@ app.use('/', auth, usersRouter);
 
 app.use('*', () => {
   throw new NotFound('Запрашиваемый ресурс не найден');
-});
-
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
 });
 
 app.use(errorLogger);
