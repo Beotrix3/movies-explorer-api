@@ -17,7 +17,6 @@ const validId = celebrate({
 
 const validMovie = celebrate({
   body: Joi.object().keys({
-    movieId: Joi.number().integer().required(),
     country: Joi.string().required(),
     director: Joi.string().required(),
     duration: Joi.number().required(),
@@ -26,6 +25,7 @@ const validMovie = celebrate({
     image: Joi.string().required().custom(validCustom),
     trailer: Joi.string().required().custom(validCustom),
     thumbnail: Joi.string().required().custom(validCustom),
+    movieId: Joi.string().min(1).required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
   }),

@@ -1,33 +1,40 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
-const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const usersRouter = require('./routes/users');
 const moviesRouter = require('./routes/movies');
 const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const { createUser, authUser, logoutUser } = require('./controllers/users');
+const { createUser, authUser } = require('./controllers/users');
 const { validUser, validUserAuth } = require('./middlewares/validate');
 const NotFound = require('./errors/NotFound');
 
 const { PORT = 3000 } = process.env;
 
-const ALLOWED_CORS = [
-  'https://movies-explorer.front.brx.nomoredomains.work',
-  'https://api.movies-explorer.btrix.nomoredomains.rocks',
-  'localhost:3000',
-];
-
 const app = express();
 
-app.use(helmet());
-
-app.use(cookieParser());
-
 app.use(express.json());
+
+const options = {
+  origin: [
+    'https://movies-explorer.front.brx.nomoredomains.work',
+    'https://api.movies-explorer.btrix.nomoredomains.rocks',
+    'http://localhost:3000',
+  ],
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
+  credentials: true,
+};
+
+app.use('*', cors(options));
+
+app.use(helmet());
 
 mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
   useNewUrlParser: true,
@@ -44,24 +51,6 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-app.use((req, res, next) => {
-  const { origin } = req.headers;
-  const { method } = req;
-  const requestHeaders = req.headers['access-control-request-headers'];
-  const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
-  if (ALLOWED_CORS.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-  }
-  if (method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', DEFAULT_ALLOWED_METHODS);
-    res.header('Access-Control-Allow-Headers', requestHeaders);
-
-    res.status(200).send();
-  }
-  next();
-});
-
 app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
@@ -70,8 +59,6 @@ app.get('/crash-test', () => {
 
 app.post('/signup', validUser, createUser);
 app.post('/signin', validUserAuth, authUser);
-
-app.post('/logout', logoutUser);
 
 app.use('/', auth, moviesRouter);
 app.use('/', auth, usersRouter);

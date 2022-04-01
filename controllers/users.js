@@ -65,17 +65,9 @@ const authUser = (req, res, next) => {
         NODE_ENV === 'production' ? JWT_SECRET : 'secret-key',
         { expiresIn: '7d' },
       );
-      res.cookie('jwt', token, {
-        maxAge: 3600000 * 24 * 7,
-        httpOnly: true,
-      })
-        .send({ message: 'Авторизация прошла успешно' });
+      res.send({ token, message: 'Авторизация прошла успешно' });
     })
     .catch(next);
-};
-
-const logoutUser = (req, res) => {
-  res.clearCookie('jwt').send({ message: 'Вы успешно разлогинились' });
 };
 
 module.exports = {
@@ -83,5 +75,4 @@ module.exports = {
   updateUser,
   createUser,
   authUser,
-  logoutUser,
 };
