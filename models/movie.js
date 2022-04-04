@@ -60,7 +60,6 @@ const movieSchema = new Schema({
   },
   movieId: {
     type: Number,
-    ref: 'movie',
     required: true,
     unique: true,
   },

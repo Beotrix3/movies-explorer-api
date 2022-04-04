@@ -2,11 +2,12 @@ const Movie = require('../models/movie');
 
 const Forbidden = require('../errors/Forbidden');
 const BadRequest = require('../errors/BadRequest');
+const Conflict = require('../errors/Conflict');
 
 const getMovies = (req, res, next) => {
   const owner = req.user._id;
   Movie.find({ owner })
-    .then((movies) => res.send({ movies }))
+    .then((movies) => res.send(movies))
     .catch(next);
 };
 
@@ -41,10 +42,13 @@ const createMovie = (req, res, next) => {
     movieId,
     owner,
   })
-    .then((movie) => res.send({ movie }))
+    .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequest(err.message);
+      }
+      if (err.code === 11000) {
+        throw new Conflict(err.message);
       }
       throw err;
     })
